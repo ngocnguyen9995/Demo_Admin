@@ -1,37 +1,55 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import Tables from './Components/Tables'
+import Table from './Components/Table'
 import './App.css';
-import AddItem from './Components/AddItem'
+import AddData from './Components/AddData'
+import NavBar from './Components/NavBar'
 
 class App extends Component {
 
   constructor(){
     super();
     this.state = {
-      tables: []
+      tables: [],
+      currentTable: '',
+      fields: [],
+      data: []
     }
   }
 
+  handleAddNewEntry = (newEntry) => {
+    let data = this.state.data;
+    data.push(newEntry);
+    console.log(newEntry);
+    this.setState({data:data});
+  }
+
   componentWillMount(){
-    // call API to get all tables here
+    // call API to get table here
     this.setState(
       {
-        tables: [
+        tables:[
+          "App","Env","Customer"
+        ],
+        // API to get fields?
+        fields:[
+          "ID","Name","Description"
+        ],
+        // Fetch data
+        data: [
           {
-            id: 0,
-            name: 'Test',
-            description: 'Test Description'
+            ID: 0,
+            Name: 'Test',
+            Description: 'Test Description'
           },
           {
-            id: 1,
-            name: 'Test2',
-            description: 'Test Description'
+            ID: 1,
+            Name: 'Test2',
+            Description: 'Test Description'
           },
           {
-            id: 2,
-            name: 'Test3',
-            description: 'Test Description'
+            ID: 2,
+            Name: 'Test3',
+            Description: 'Test Description'
           },
         ]
       }
@@ -41,13 +59,12 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Admin UI</h1>
-        </header>
-        <Tables tables = {this.state.tables}/>
+        <div className = "Navigation">
+          <NavBar tables ={this.state.tables}/> <br />
+        </div>
+        <Table title = {this.state.currentTable} fields = {this.state.fields} data = {this.state.data}/>
         <hr />
-        <AddItem />
+        <AddData fields = {this.state.fields} addNewEntry = {this.handleAddNewEntry}/>
       </div>
     );
   }
