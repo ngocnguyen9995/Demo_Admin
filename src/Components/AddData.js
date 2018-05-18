@@ -1,65 +1,55 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import {isEmpty} from '../Lib/ObjHelper';
 
 export default class AddData extends Component {
 
     constructor(props){
         super(props);
-        this.state = {};
+        let newFields;
+        if (this.props.fields){
+            newFields = this.props.fields;
+        }
+        this.state = {
+            fields: newFields,
+            data: {}
+        }
     }
 
     onChange = (event) => {
-        const state = this.state;
-        state[event.target.name] = event.target.value
-        this.setState(state);
+        const newState = this.state;
+        newState.data[event.target.name] = event.target.value;
+        this.setState({data: newState.data});
     }
 
     onSubmit = (event) => {
         event.preventDefault();
-        const newEntry = this.state;
-        this.props.addNewEntry(newEntry);
+        var newEntry = this.state.data;
+        console.log(newEntry.length);
+        if (isEmpty(newEntry)){
+            alert("Duplicate/Empty data, please don't do that.");
+        } else {
+            this.setState({data: {}}, () => {this.props.addNewEntry(newEntry);});
+        }
     }
 
-    
-    componentWillMount(){
-        // Add properties to state
-        const state = this.state
-        if (this.props.fields){
-            this.props.fields.map(field =>{
-                state[field] = '';
-            });
-        }
-        this.setState(state);
+    renderInputFields = () =>{
+        let inputFields;
+        const fields = this.state.fields;
+        inputFields = fields.map(field => {
+            return(
+                <div key = {field}>
+                    <label>{field}</label><br/>
+                    <input type = "text" name = {field} required/>
+                </div>
+            );
+
+            
+        });
+        return inputFields;
     }
 
     render() {
-        let fields;
-        for (var key in this.state) {
-            fields += (
-                <div>
-                <label>{key}</label><br />
-                <input type = "text" name = {key} value = {this.state[key]}required/>
-                </div>);
-        }
-        /* if (this.state){
-            fields = Object.keys(this.state).map(key =>{
-                return(
-                    <div key = {key}>
-                        <label>{key}</label><br />
-                        <input type = "text" name = {key} value = {this.state[key]}required/>
-                    </div>
-                );
-            });
-        } */
-        /* if (this.props.fields){
-            fields = this.props.fields.map(field => {
-                return(
-                    <div key = {field}>
-                        <label>{field}</label> <br/>
-                        <input type = "text" name = {field} />
-                    </div>
-                );
-            });
-        } */
+        let fields = this.renderInputFields();
 
         return (
         <div align = "Center">

@@ -1,35 +1,52 @@
 import React, { Component } from 'react'
 import DataEntry from './DataEntry'
-import TableFields from './TableFields'
 
 export default class Table extends Component {
+  constructor(props){
+      super(props);
+      let newFields;
+      if (this.props.fields){
+        newFields = this.props.fields;
+      }
+      this.state = {
+        fields: newFields
+      }
+  }
+
+  renderTableFields = () =>{
+    let tableFields;
+    const fields = this.state.fields;
+    tableFields = fields.map(field => {
+      return(
+        <th key = {field}><strong>{field}</strong></th>
+      );
+    });
+    return tableFields;
+  }
+
+  deleteEntry = (id) => {
+    this.props.onDelete(id);
+  }
+
   render() {
 
-    let tableFields;
-    if (this.props.fields){
-      tableFields = this.props.fields.map(field => {
-        return (
-          <TableFields key = {field} field = {field} />
-        )
-      });
-    }
+    let tableFields = this.renderTableFields();
     
     let tableData;
     if (this.props.data) {
-      tableData = this.props.data.map(d => {
-        console.log(d.ID);
+      tableData = this.props.data.map((d,i) => {
         return (
-          <DataEntry key = {d.ID} data = {d} />
+          <DataEntry key = {i} data = {d} onDelete = {this.deleteEntry}/>
         );
       });
     }
     return (
       <div className = "Table">
       <h2 align = "Center">App Table</h2>
-      <table align = "Center" border = "1"  width = "70%" cellPadding = "5px">
+      <table align = "Center" border = "1"  width = "70%" cellSpacing  = "5px">
         <thead>
           <tr>
-          {tableFields}
+            {tableFields}
           </tr>
         </thead>
         <tbody>
