@@ -4,19 +4,32 @@ import './App.css';
 import AddData from './Components/AddData'
 import NavBar from './Components/NavBar'
 
-const APPFIELDS = ["ID","Name","Description"];
-const ENVFIELDS = ["ID", ]
-
+const apiLink = "https://jsonplaceholder.typicode.com/posts";
+const tables = ["APP", "ENV", "CUSTOMER"];
 class App extends Component {
 
   constructor(){
     super();
     this.state = {
-      tables: [],
-      currentTable: '',
+      data: [],
       fields: [],
-      data: []
+      tables: tables
     }
+  }
+
+  getData() {
+    fetch(apiLink)
+      .then(response => response.json())
+      .then(json => {
+        const fields = [];
+        for (var field in json[0]){
+          fields.push(field);
+        }
+        this.setState({
+          data: json,
+          fields: fields
+        });
+      });
   }
 
   handleAddNewEntry = (newEntry) => {
@@ -35,11 +48,16 @@ class App extends Component {
     }
   }
 
-  handleDeleteEntry = (id) => {
+  handleDeleteEntry = (selection) => {
     let newData = this.state.data;
-    let index = newData.findIndex(d => d.id === id);
-    newData.splice(index, 1);
-    this.setState({data: newData});
+    const index = (data, key) => {
+      return data.findIndex(d => d.id === key);
+    }
+    for (var key in selection) {
+      let i = index(newData, parseInt(key));
+      newData.splice(i, 1);
+    }
+    this.setState({data: newData})
   }
 
   fetchTables = () =>{
@@ -49,7 +67,7 @@ class App extends Component {
     });
   }
 
-  fetchCurrentTable = () => {
+  /* fetchCurrentTable = () => {
     // Fetch the currently selected table, fields and data
     this.setState({
       fields: ["ID","Name","Description"],
@@ -71,22 +89,34 @@ class App extends Component {
         }
       ]
     });
-  }
+  } */
 
   componentWillMount(){
-    this.fetchTables();
-    this.fetchCurrentTable();
+    this.getData();
   }
 
   render() {
+    const {data} = this.state;
+    const {handleDeleteEntry} = this;
+    const tableProps = {
+      data: data,
+      keyField: "id",
+      onDelete: handleDeleteEntry,
+      sortMethod: {
+        id: "id",
+        desc: true
+      }
+    }
     return (
       <div className="App">
         <div className = "Navigation">
           <NavBar tables ={this.state.tables}/> <br />
         </div>
-        <Table title = {this.state.currentTable} fields = {this.state.fields} data = {this.state.data} onDelete = {this.handleDeleteEntry}/>
-        <hr />
-        <AddData fields = {this.state.fields} addNewEntry = {this.handleAddNewEntry}/>
+          <Table
+            {...tableProps}
+          />
+          <hr/>
+          <AddData fields = {this.state.fields} addNewEntry = {this.handleAddNewEntry}/>
       </div>
     );
   }

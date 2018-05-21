@@ -5,12 +5,7 @@ export default class AddData extends Component {
 
     constructor(props){
         super(props);
-        let newFields;
-        if (this.props.fields){
-            newFields = this.props.fields;
-        }
         this.state = {
-            fields: newFields,
             data: {}
         }
     }
@@ -19,7 +14,7 @@ export default class AddData extends Component {
         const newState = this.state;
         newState.data[event.target.name] = event.target.value;
         this.setState({data: newState.data});
-    }
+    };
 
     onSubmit = (event) => {
         event.preventDefault();
@@ -30,27 +25,24 @@ export default class AddData extends Component {
         } else {
             this.setState({data: {}}, () => {this.props.addNewEntry(newEntry);});
         }
-    }
+    };
 
-    renderInputFields = () =>{
+    renderInputFields = () => {
         let inputFields;
-        const fields = this.state.fields;
+        const fields = this.props.fields;
         inputFields = fields.map(field => {
             return(
                 <div key = {field}>
                     <label>{field}</label><br/>
                     <input type = "text" name = {field} required/>
                 </div>
-            );
-
-            
+            ); 
         });
         return inputFields;
-    }
+    };
 
     render() {
         let fields = this.renderInputFields();
-
         return (
         <div align = "Center">
             <h3>Add New Entry</h3>
@@ -59,6 +51,6 @@ export default class AddData extends Component {
                 <input type = "submit" value = "Submit" />
             </form>
         </div>
-        )
+        );
     }
 }

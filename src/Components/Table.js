@@ -1,17 +1,42 @@
 import React, { Component } from 'react'
-import DataEntry from './DataEntry'
+import ReactTable from 'react-table';
+import "react-table/react-table.css";
+import checkboxHOC from "react-table/lib/hoc/selectTable";
+import {isEmpty} from "../Lib/ObjHelper"
+
+const CheckboxTable = checkboxHOC(ReactTable);
 
 export default class Table extends Component {
   constructor(props){
-      super(props);
-      let newFields;
-      if (this.props.fields){
-        newFields = this.props.fields;
-      }
-      this.state = {
-        fields: newFields
-      }
+    super(props);
+    this.state = {
+      selection: {},
+      selectAll: false
+    };
   }
+
+  toggleSelection = (key, shift, row) => {
+    const newSelection = Object.assign({}, this.state.selection);
+    newSelection[key] = !this.state.selection[key];
+    this.setState({
+      selection: newSelection
+    });
+  };
+
+  toggleAll = () => {
+    const selectAll = this.state.selectAll ? false : true;
+    let newSelection = {};
+    if (selectAll) {
+      // Get table internals and all currently visible rows
+      const wrappedInstance = this.checkboxTable.getWrappedInstance();
+      const currentRecords = wrappedInstance.getResolvedState().sortedData;
+      // Push al IDs to selection
+      currentRecords.forEach(element => {
+        newSelection[element.id] = true;
+      });
+    }
+    this.setState({selectAll, selection: newSelection});
+  };
 
   renderTableFields = () =>{
     let tableFields;
@@ -24,37 +49,66 @@ export default class Table extends Component {
     return tableFields;
   }
 
-  deleteEntry = (id) => {
-    this.props.onDelete(id);
+  isSelected = key => {
+    return this.state.selection[key] === true;
+  };
+
+  deleteSelection = () => {
+    const selection = this.state.selection;
+    if (isEmpty(selection)){
+      alert("No row selected");
+    } else {
+      this.props.onDelete(selection);
+    }
+    this.setState({selection: {}});
+  };
+
+  getColumns(data, exclude = "") {
+    let header = [];
+    for (var d in data[0]){
+      if (d !== exclude){
+        let h_and_a = {
+          Header: d.toUpperCase(),
+          accessor: d
+        }
+        header.push(h_and_a);
+      }
+    }
+    return header;
   }
 
   render() {
+    const {data, exclude, keyField, sortMethod} = this.props;
+    const {toggleSelection, toggleAll, isSelected, deleteSelection} = this;
+    const selectAll = this.state.selectAll;
+    const columns = (this.getColumns(data, exclude));
 
-    let tableFields = this.renderTableFields();
-    
-    let tableData;
-    if (this.props.data) {
-      tableData = this.props.data.map((d,i) => {
-        return (
-          <DataEntry key = {i} data = {d} onDelete = {this.deleteEntry}/>
-        );
-      });
+    const checkboxProps = {
+      selectAll,
+      isSelected,
+      toggleSelection,
+      toggleAll,
+      selectType: "checkbox",
     }
-    return (
-      <div className = "Table">
-      <h2 align = "Center">App Table</h2>
-      <table align = "Center" border = "1"  width = "70%" cellSpacing  = "5px">
-        <thead>
-          <tr>
-            {tableFields}
-          </tr>
-        </thead>
-        <tbody>
-          {tableData}
-        </tbody>
-      </table>
-        
+
+    return(
+      <div>
+        <button onClick={deleteSelection}>Delete</button>
+        <CheckboxTable
+          ref = {r => (this.checkboxTable = r)}
+          filterable
+          keyField = {keyField}
+          data = {data}
+          columns = {columns}
+          defaultPageSize = {50}
+          defaultSorted = {[
+            {sortMethod}
+          ]}
+          style = {{height: "500px"}}
+          className="-striped -highlight"
+          {...checkboxProps}/>
       </div>
-    )
+    );
+
   }
 }
