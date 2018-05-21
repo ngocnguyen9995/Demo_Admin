@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
 import Table from './Components/Table'
 import './App.css';
-import AddData from './Components/AddData'
 import NavBar from './Components/NavBar'
 
 const apiLink = "https://jsonplaceholder.typicode.com/posts";
-const tables = ["APP", "ENV", "CUSTOMER"];
+const TBLIST = ["App","Env","Customer"];
 class App extends Component {
 
   constructor(){
     super();
     this.state = {
-      data: [],
+      currentTable: TBLIST[0],
       fields: [],
-      tables: tables
+      tables: TBLIST
     }
   }
 
@@ -40,14 +39,6 @@ class App extends Component {
     }
   }
 
-  handleEditEntry = (newEntry, i) => {
-    if (newEntry){
-      let newData = this.state.data;
-      newData[i] = newEntry;
-      this.setState({data: newData});
-    }
-  }
-
   handleDeleteEntry = (selection) => {
     let newData = this.state.data;
     const index = (data, key) => {
@@ -63,7 +54,7 @@ class App extends Component {
   fetchTables = () =>{
     // Call apis to get list of tables
     this.setState({
-      tables: ["App","Env","Customer"]
+      tables: TBLIST
     });
   }
 
@@ -91,14 +82,11 @@ class App extends Component {
     });
   } */
 
-  componentWillMount(){
-    this.getData();
-  }
-
   render() {
-    const {data} = this.state;
+    const {data, currentTable} = this.state;
     const {handleDeleteEntry} = this;
     const tableProps = {
+      tableName: currentTable,
       data: data,
       keyField: "id",
       uneditableFields: ["userId", "id"],
@@ -117,7 +105,6 @@ class App extends Component {
             {...tableProps}
           />
           <hr/>
-          <AddData fields = {this.state.fields} addNewEntry = {this.handleAddNewEntry}/>
       </div>
     );
   }
