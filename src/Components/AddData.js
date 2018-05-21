@@ -33,7 +33,7 @@ export default class AddData extends Component {
         inputFields = fields.map(field => {
             return(
                 <div key = {field}>
-                    <label>{field}</label><br/>
+                    <label>{field.toUpperCase()}</label><br/>
                     <input type = "text" name = {field} required/>
                 </div>
             ); 
