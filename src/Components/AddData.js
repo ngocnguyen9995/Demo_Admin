@@ -18,7 +18,7 @@ export default class AddData extends Component {
 
     onSubmit = (event) => {
         event.preventDefault();
-        var newEntry = this.state.data;
+        const newEntry = this.state.data;
         console.log(newEntry.length);
         if (isEmpty(newEntry)){
             alert("Duplicate/Empty data, please don't do that.");

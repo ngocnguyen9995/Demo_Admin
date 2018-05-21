@@ -101,6 +101,7 @@ class App extends Component {
     const tableProps = {
       data: data,
       keyField: "id",
+      uneditableFields: ["userId", "id"],
       onDelete: handleDeleteEntry,
       sortMethod: {
         id: "id",

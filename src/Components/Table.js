@@ -53,6 +53,22 @@ export default class Table extends Component {
     return this.state.selection[key] === true;
   };
 
+  /* renderEditable = (cellInfo) => {
+    return(
+      <div
+        style = {{background: "#fafafa"}}
+        contentEditable
+        suppressContentEditableWarning
+        onBlur = {() => {
+          {this.props.handleChange}
+        }}
+        dangerouslySetInnerHTML = {{
+          __html: this.stat
+        }}
+      />
+    );
+  }; */
+
   deleteSelection = () => {
     const selection = this.state.selection;
     if (isEmpty(selection)){
@@ -63,14 +79,26 @@ export default class Table extends Component {
     this.setState({selection: {}});
   };
 
-  getColumns(data, exclude = "") {
+  getColumns(data, exclude = "", uneditableCells = []) {
     let header = [];
     for (var d in data[0]){
       if (d !== exclude){
         let h_and_a = {
           Header: d.toUpperCase(),
           accessor: d
-        }
+        };
+        /* if (!uneditableCells.includes(d)){
+          h_and_a = {
+            Header: d.toUpperCase(),
+            accessor: d,
+            Cell: this.renderEditable
+          }
+        } else {
+          h_and_a = {
+            Header: d.toUpperCase(),
+            accessor: d
+          }
+        } */
         header.push(h_and_a);
       }
     }
@@ -78,10 +106,10 @@ export default class Table extends Component {
   }
 
   render() {
-    const {data, exclude, keyField, sortMethod} = this.props;
+    const {data, exclude, uneditableFields, keyField, sortMethod} = this.props;
     const {toggleSelection, toggleAll, isSelected, deleteSelection} = this;
     const selectAll = this.state.selectAll;
-    const columns = (this.getColumns(data, exclude));
+    const columns = (this.getColumns(data, exclude, uneditableFields));
 
     const checkboxProps = {
       selectAll,
