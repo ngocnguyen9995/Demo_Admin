@@ -35,22 +35,28 @@ export default class Table extends Component {
   fetchData = () => {
     if (this.props.tableName){
       const url = TBURLs[this.props.tableName];
-      axios.get(url)
-      .then(response => response.data.json())
-      .then(json => {
+      axios.get(url, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        proxy: {
+          host: 'https://localhost',
+          port: 44353
+        }
+        })
+      .then(response => {
+        const data = response.data.data.apps;
         const fields = [];
-        for (var field in json[0]){
-          fields.push(field);
+        for (var field in data[0]){
+          if (!this.props.uneditableFields.includes(field)){
+            fields.push(field);
+          }
         }
         this.setState({
-          data: json,
+          data: data,
           fields: fields
         });
-      })
-      .catch((error) => {
-        if (error.response.status === 500) {
-          console.error("Server Error, couldn't fetch data");
-        }
       });
     }
   }
@@ -81,22 +87,6 @@ export default class Table extends Component {
   isSelected = key => {
     return this.state.selection[key] === true;
   };
-
-  /* renderEditable = (cellInfo) => {
-    return(
-      <div
-        style = {{background: "#fafafa"}}
-        contentEditable
-        suppressContentEditableWarning
-        onBlur = {() => {
-          {this.props.handleChange}
-        }}
-        dangerouslySetInnerHTML = {{
-          __html: this.stat
-        }}
-      />
-    );
-  }; */
 
   handleAddNewEntry = (newEntry) => {
     if (newEntry){
@@ -174,19 +164,17 @@ export default class Table extends Component {
   }
 
   render() {
-    const exclude = ["userId"];
-    const uneditableFields = ["id"];
+    const {uneditableFields, keyField} = this.props;
     const {toggleSelection, toggleAll, isSelected, deleteSelection} = this;
     const {data, selectAll} = this.state;
-    const columns = (this.getColumns(data, exclude, uneditableFields));
+    const columns = (this.getColumns(data, "", uneditableFields));
 
     const tableProps = {
       data: data,
-      keyField: "id",
       columns: columns,
       defaultSorted: [
         {
-        id: "id",
+        id: "AppId",
         desc: false
         }
       ]
@@ -208,7 +196,7 @@ export default class Table extends Component {
           ref = {r => (this.checkboxTable = r)}
           filterable
           {...tableProps}
-          defaultPageSize = {50}
+          defaultPageSize = {10}
           style = {{height: "500px"}}
           className="-striped -highlight"
           {...checkboxProps}/>
